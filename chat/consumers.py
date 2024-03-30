@@ -39,5 +39,5 @@ class ChatConsumer(WebsocketConsumer):
     #     print("Disconnecting")
         
     
-    # def receiver_func(self,data_come_from_layer):
-    #     pass
+    def receiver_func(self,data_come_from_layer):
+        print(data_come_from_layer)
