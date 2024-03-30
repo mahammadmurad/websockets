@@ -269,7 +269,8 @@
     </footer>
 
     <script>
-        const url = 'ws://127.0.0.1:8000/websocket';
+        const person_id = {{ person.id }};
+        const url = 'ws://127.0.0.1:8000/websocket/${person_id}';
         const chat_websocket = new WebSocket(url);
 
         const messages_area = document.getElementById('messages-area');
