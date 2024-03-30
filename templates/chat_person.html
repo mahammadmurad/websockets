@@ -242,26 +242,35 @@
     </header>
 
     <main id="messages-area">
-        <section class="to">
-            <div class="details">
-                <p>2024-01-30</p>
-                <div class="status"><div></div><div></div></div>
-                <p>10:55:02</p>
-            </div>
-            <div class="message">
-                <p style="overflow-wrap: anywhere;">Message from you</p>
-            </div>
-        </section>
+        {% for message in messages %}
+            {% if message.from_who == me  %}
+                    <section class="to">
+                        <div class="details">
+                            <p>{{ message.date }}</p>
+                            <div class="status">
+                                <div></div>
+                                <div></div>
+                            </div>
+                            <p>{{ message.time }}</p>
+                        </div>
+                        <div class="message">
+                            <p style="overflow-wrap: anywhere;">{{ message.message }}</p>
+                        </div>
+                    </section>
+            {% elif message.from_who == person %}
+                        <section class="from">
+                            <div class="details">
+                                <p>{{ message.date }}</p>
+                                <p>{{ message.time }}</p>
+                            </div>
+                            <div class="message">
+                                <p style="overflow-wrap: anywhere;">{{ message.message }}</p>
+                            </div>
+                        </section>
+            {% endif %}
+        {% endfor %}
 
-        <section class="from">
-            <div class="details">
-                <p>2024-01-30</p>
-                <p>10:55:02</p>
-            </div>
-            <div class="message">
-                <p style="overflow-wrap: anywhere;">Message from the other</p>
-            </div>
-        </section>
+        
     </main>
     <footer>
         <textarea name="text" oninput="this.style.height = ''; this.style.height = this.scrollHeight +'px'" id="the-message-to-send"></textarea>
@@ -269,7 +278,7 @@
     </footer>
 
     <script>
-        const person_id = {{person.id}};
+        const person_id = {{ person.id }};
         const url = 'ws://127.0.0.1:8000/websocket/${person_id}';
         const chat_websocket = new WebSocket(url);
 
@@ -296,21 +305,28 @@
         
 
         chat_websocket.onmessage = function (event) {
-                    const received_data = JSON.parse(event.data)
+                    const received_data = JSON.parse(event.data);
 
-                    if (received_data.type_of_data=="new_message") {
-                        messages_area.insertAdjacentHTML("beforeend", <section class="from">
-                            <div class="details">
-                                <p>2024-01-30</p>
-                                <p>10:55:02</p>
-                            </div>
-                            <div class="message">
-                                <p style="overflow-wrap: anywhere;">${received_data.data}</p>
-                            </div>
-                        </section>
+                    if (received_data.type_of_data == "new_message") {
+                        messages_area.insertAdjacentHTML("beforeend", '<section class="from"><div class="details">'+
+                                '<p>2024-01-30</p>'+
+                            ' <p>10:55:02</p>'+
+                            '</div>'+
+                            '<div class="message">'+
+                            '<p style="overflow-wrap: anywhere;">' + received_data.data + '</p>'+
+                            '</div>' +
+                        ' </section>'
                         )
-
-                }};
+                        chat_websocket.send('{"type": "i_have_seen_message"}');
+                    
+                    }
+                    else if (received_data.type_of_data == "the_message_has_been_seen_from_other"){
+                        const my_messages = document.getElementsByClassName("status")
+                        for(let i=0; my_messages.length>i; i++) {
+                            my_messages[i].classList.add("seen")
+                        }
+                    }
+            };
 
     </script>
 
