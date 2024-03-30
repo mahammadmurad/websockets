@@ -296,8 +296,21 @@
         
 
         chat_websocket.onmessage = function (event) {
-                    console.log(event.data);
-                };
+                    const received_data = JSON.parse(event.data)
+
+                    if (received_data.type_of_data=="new_message") {
+                        messages_area.insertAdjacentHTML("beforeend", <section class="from">
+                            <div class="details">
+                                <p>2024-01-30</p>
+                                <p>10:55:02</p>
+                            </div>
+                            <div class="message">
+                                <p style="overflow-wrap: anywhere;">${received_data.data}</p>
+                            </div>
+                        </section>
+                        )
+
+                }};
 
     </script>
 

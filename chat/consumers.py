@@ -39,23 +39,29 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
 
         text_data = json.loads(text_data)
+        other_user = User.objects.get(id=self.person_id)
         # print(text_data.get("type"))
         # print(text_data.get("message"))
         new_message = Message()
         new_message.from_who = self.scope.get('user')
-        new_message.to_who = User.objects.get(id=self.person_id)
+        new_message.to_who = other_user
         new_message.message = text_data.get('message')
         new_message.date = '10-03-2024'
         new_message.time = '21:00'
         new_message.has_been_seen = False
         new_message.save()
 
-        data = {
-            "type": "receiver_function",
-            "type_of_data": "new_message",
-            "data": text_data.get("message"),
-        }
-        async_to_sync(self.channel_layer.send)("name_channel", data)
+        try:
+            user_channel_name = UserChannel.objects.get(user=other_user)
+
+            data = {
+                "type": "receiver_function",
+                "type_of_data": "new_message",
+                "data": text_data.get("message"),
+            }
+            async_to_sync(self.channel_layer.send)(user_channel_name.channel_name, data)
+        except:
+            pass
 
         # print(text_data)
         # self.send("{'type':'arrive', 'status':'arrived'}")
@@ -64,4 +70,5 @@ class ChatConsumer(WebsocketConsumer):
     #     print("Disconnecting")
 
     def receiver_function(self, data_come_from_layer):
-        print(data_come_from_layer)
+        data = json.dumps(data_come_from_layer)
+        self.send(data)
