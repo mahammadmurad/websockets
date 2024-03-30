@@ -101,7 +101,7 @@
             <a href="{% url 'chat_person' person.pk  %}">
                 <section>
                     <img src=" {% static 'face.png' %} ">
-                    <p>{{ person.first_name }} {{ person.last_name }}</p>
+                    <p>{{ person.username }} </p>
                 </section>
             </a>
         {% endfor %}
