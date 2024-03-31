@@ -41,14 +41,14 @@ class ChatConsumer(WebsocketConsumer):
 
         text_data = json.loads(text_data)
         other_user = User.objects.get(id=self.person_id)
-        if text_data.get('type')== 'new_message':
+        if text_data.get("type") == "new_message":
             now = datetime.datetime.now()
             date = now.date()
             time = now.time()
             new_message = Message()
-            new_message.from_who = self.scope.get('user')
+            new_message.from_who = self.scope.get("user")
             new_message.to_who = other_user
-            new_message.message = text_data.get('message')
+            new_message.message = text_data.get("message")
             new_message.date = date
             new_message.time = time
             new_message.has_been_seen = False
@@ -62,10 +62,12 @@ class ChatConsumer(WebsocketConsumer):
                     "type_of_data": "new_message",
                     "data": text_data.get("message"),
                 }
-                async_to_sync(self.channel_layer.send)(user_channel_name.channel_name, data)
+                async_to_sync(self.channel_layer.send)(
+                    user_channel_name.channel_name, data
+                )
             except:
                 pass
-        elif text_data.get('type')== 'i_have_seen_message':
+        elif text_data.get("type") == "i_have_seen_message":
             try:
                 user_channel_name = UserChannel.objects.get(user=other_user)
 
@@ -73,7 +75,14 @@ class ChatConsumer(WebsocketConsumer):
                     "type": "receiver_function",
                     "type_of_data": "the_message_has_been_seen_from_other",
                 }
-                async_to_sync(self.channel_layer.send)(user_channel_name.channel_name, data)
+                async_to_sync(self.channel_layer.send)(
+                    user_channel_name.channel_name, data
+                )
+
+                message_have_not_been_seen = Message.objects.filter(
+                    from_who=other_user, to_who=self.scope.get("user")
+                )
+                message_have_not_been_seen.update(has_been_seen=True)
             except:
                 pass
 

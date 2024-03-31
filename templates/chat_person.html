@@ -247,10 +247,18 @@
                     <section class="to">
                         <div class="details">
                             <p>{{ message.date }}</p>
-                            <div class="status">
-                                <div></div>
-                                <div></div>
-                            </div>
+                            {% if message.has_been_seen %}
+                                <div class="status seen">
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            {% else %}
+                                <div class="status">
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            {% endif %}
+                            
                             <p>{{ message.time }}</p>
                         </div>
                         <div class="message">
